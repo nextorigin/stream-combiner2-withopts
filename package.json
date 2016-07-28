@@ -1,6 +1,7 @@
 {
   "name": "stream-combiner2-withopts",
   "version": "1.1.1",
+  "description": "An extension of stream-combiner2 which passes along options to the stream constructors",
   "homepage": "https://github.com/nextorigin/stream-combiner2-withopts",
   "repository": {
     "type": "git",
