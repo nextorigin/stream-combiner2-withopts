@@ -1,11 +1,19 @@
 {
-  "name": "stream-combiner2",
+  "name": "stream-combiner2-withopts",
   "version": "1.1.1",
-  "homepage": "https://github.com/substack/stream-combiner2",
+  "homepage": "https://github.com/nextorigin/stream-combiner2-withopts",
   "repository": {
     "type": "git",
-    "url": "git://github.com/substack/stream-combiner2.git"
+    "url": "git://github.com/nextorigin/stream-combiner2-withopts.git"
   },
+  "keywords": [
+    "stream",
+    "combine",
+    "options",
+    "objectmode",
+    "utf8",
+    "decodestrings"
+  ],
   "dependencies": {
     "duplexer2": "~0.1.0",
     "readable-stream": "^2.0.2"
