@@ -84,13 +84,13 @@ test('0 argument through stream', function (test) {
 
 test('object mode', function (test) {
   test.plan(2)
-  var pipe = combine.obj()
+  var opts = {objectMode: true}
    , expected = [ [4,5,6], {x:5} ]
 
-  pipe.pipe(through.obj(function(data, enc, next) {
+  pipe = combine(through.obj(function(data, enc, next) {
     test.deepEqual(data, expected.shift())
     next()
-  }))
+  }), opts)
   pipe.write([4,5,6])
   pipe.write({x:5})
   pipe.end()
