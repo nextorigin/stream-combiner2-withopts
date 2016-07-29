@@ -96,3 +96,52 @@ test('object mode', function (test) {
   pipe.end()
 })
 
+test('unwrap unpipes streams', function (test) {
+  test.plan(1)
+  var errors = 0;
+  var pipe = combine(
+    es.through(),
+    es.through(function(data) {
+      errors++
+      return test.fail("should not have piped")
+    })
+  )
+
+  pipe.unwrap()
+  pipe.write('meh')
+  test.notOk(errors, "expected no errors")
+})
+
+test('unwrap unbinds streams', function (test) {
+  test.plan(2)
+  var errors = 0;
+  var pipe = combine(
+    es.through(function(data) {
+      return this.emit("error", new Error(data))
+    }),
+    es.through(function(data) {
+      errors++
+      return test.fail("should not have piped")
+    }),
+    es.through()
+  )
+
+  pipe.on('error', function(err) {
+    errors++
+    return test.fail("should not have bubbled error")
+  })
+
+  pipe._writable.on("finish", function() {
+    errors++
+    return test.fail("event not unbound")
+  })
+
+  pipe.unwrap()
+  pipe.emit("finish")
+  try {
+    pipe.write('meh')
+  } catch (err) {
+    test.ok(err.toString().match(/meh/), "should have unbound error handlers")
+    test.notOk(errors, "expected no errors")
+  }
+})

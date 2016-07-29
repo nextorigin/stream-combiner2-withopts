@@ -1,6 +1,6 @@
 {PassThrough} = require "readable-stream"
 {Readable}    = require "readable-stream"
-duplexer      = require "duplexer2"
+Duplexer      = require "duplexer2-unwrappable"
 
 
 wrap = (tr, opts) ->
@@ -12,6 +12,11 @@ recurse = (streams) ->
   streams[0].pipe streams[1]
   recurse streams[1..]
 
+unwrap = (streams) ->
+  return if streams.length < 2
+  streams[0].unpipe streams[1]
+  unwrap streams[1..]
+
 Combine = (streams..., opts) ->
   streams = streams[0] if Array.isArray streams[0]
   if opts?.write or opts?.read
@@ -21,17 +26,22 @@ Combine = (streams..., opts) ->
   return new PassThrough opts unless streams.length
   return streams[0] if streams.length is 1
 
+  opts.bubbleErrors = false
   first   = streams[0]
   last    = streams[-1..][0]
-  thepipe = duplexer opts, first, last
+  thepipe = new Duplexer opts, first, last
   recurse streams
 
-  #es.duplex already reemits the error from the first and last stream.
-  #add a listener for the inner streams in the pipeline.
   onerror = (args...) ->
     args.unshift "error"
     thepipe.emit args...
-  stream.on "error", onerror for stream in streams[1...-1]
+  stream.on "error", onerror for stream in streams
+
+  thepipe.unwrap = ->
+    thepipe.unbind()
+    stream.removeListener "error", onerror for stream in streams
+    unwrap streams
+
   thepipe
 
 

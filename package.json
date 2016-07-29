@@ -16,7 +16,7 @@
     "decodestrings"
   ],
   "dependencies": {
-    "duplexer2": "~0.1.0",
+    "duplexer2-unwrappable": "~0.1.0",
     "readable-stream": "^2.0.2"
   },
   "devDependencies": {
