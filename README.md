@@ -26,11 +26,13 @@ Listening for 'error' will recieve errors from all streams inside the pipe.
 
 'opts' is an optional options object that will be passed to the stream constructors.
 
+`.unwrap()` is available on the combined stream, to unbind and unpipe the streams for reuse and cleanup.
+
 ```js
 var Combine = require('stream-combiner2-withopts')
 var es      = require('event-stream')
 
-Combine(                                  // connect streams together with `pipe`
+var combined = Combine(                   // connect streams together with `pipe`
   process.openStdin(),                    // open stdin
   es.split(),                             // split stream to break on newlines
   es.map(function (data, callback) {      // turn this async function into a stream
@@ -39,6 +41,8 @@ Combine(                                  // connect streams together with `pipe
   }),
   process.stdout                          // pipe it to stdout !
 )
+...
+combined.unwrap()                         // disconnect pipes and events
 ```
 
 ## License
