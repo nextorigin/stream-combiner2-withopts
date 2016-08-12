@@ -1,6 +1,7 @@
 {PassThrough} = require "readable-stream"
 {Readable}    = require "readable-stream"
 Duplexer      = require "duplexer2-unwrappable"
+{EventEmitter} = require "events"
 
 
 wrap = (tr, opts) ->
@@ -19,11 +20,11 @@ unwrap = (streams) ->
 
 Combine = (streams..., opts) ->
   streams = streams[0] if Array.isArray streams[0]
-  if opts?.write or opts?.read
+  if opts and (opts.write or opts.read or opts instanceof EventEmitter)
     streams.push opts
     opts = {}
   streams = (wrap stream, opts for stream in streams)
-  return new PassThrough opts unless streams.length
+  return new PassThrough unless streams.length
   return streams[0] if streams.length is 1
 
   opts.bubbleErrors = false
@@ -33,8 +34,8 @@ Combine = (streams..., opts) ->
   recurse streams
 
   onerror = (args...) ->
-    args.unshift "error"
-    thepipe.emit args...
+    thepipe.emit "error", args...
+
   stream.on "error", onerror for stream in streams
 
   thepipe.unwrap = ->
