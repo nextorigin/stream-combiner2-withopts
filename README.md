@@ -45,6 +45,35 @@ var combined = Combine(                   // connect streams together with `pipe
 combined.unwrap()                         // disconnect pipes and events
 ```
 
+## Merge
+
+`Merge` returns a stream that is the result of merging writes from multiple streams into a single output stream.  (This is in contrast to Combine. Combine pipes the streams end-to-end.)
+
+Streams1 streams are automatically upgraded to be streams3 streams.
+
+Listening for 'error' will recieve errors from all streams inside the pipe.
+
+'opts' is an optional options object that will be passed to the stream constructors.
+
+`.unwrap()` is available on the merged stream, to unbind and unpipe the streams for reuse and cleanup.
+
+`.remove(source)` is available on the merged stream, to remove a single source from the merged group.
+
+```js
+var Merge   = require('stream-combiner2-withopts').Merge
+var es      = require('event-stream')
+
+var merged = Merge(                   // connect streams together with `pipe`
+  process.openStdin(),                // open stdin
+  fs.createReadStream(file.txt)       // merge stdin with a text file
+)
+merged.pipe(process.stdout)           // pipe it to stdout !
+...
+merged.unwrap()                       // disconnect pipes and events
+```
+
+Merge is primarily inspired by [**merge-stream**](https://www.npmjs.com/package/merge-stream)
+
 ## License
 
 MIT
