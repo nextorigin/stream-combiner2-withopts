@@ -49,5 +49,38 @@ Combine = (streams..., opts) ->
 
   thepipe
 
+Merge = (streams..., opts) ->
+  {streams, opts} = parseArgs streams, opts
+  return new PassThrough unless streams.length
+  return streams[0] if streams.length is 1
 
+  sources = []
+  thepipe = new PassThrough opts
+
+  onerror = (args...) ->
+    thepipe.emit "error", args...
+
+  add = (source) ->
+    sources.push source
+    source.once "end", remove.bind null, source
+    source.on "error", onerror
+    source.pipe thepipe, end: false
+
+  remove = (source) ->
+    source.unpipe thepipe
+    sources = (s for s in sources when s isnt source)
+    source.removeListener "error", onerror
+    thepipe.end() unless sources.length
+
+  add stream for stream in streams
+
+  thepipe.unwrap = ->
+    remove sources[0] while sources.length
+
+  thepipe.add    = add
+  thepipe.remove = remove
+  thepipe
+
+
+Combine.Merge  = Merge
 module.exports = Combine
